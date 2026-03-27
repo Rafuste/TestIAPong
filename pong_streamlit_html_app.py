@@ -67,6 +67,8 @@ custom_css = """
 st.markdown(custom_css, unsafe_allow_html=True)
 
 
+highscores = load_highscores_from_file()
+
 html_content = load_file_content(HTML_FILE)
 css_content = load_file_content(CSS_FILE)
 js_content = load_file_content(JS_FILE)
@@ -96,7 +98,7 @@ if html_content and css_content and js_content:
 
         st.markdown("---")
         st.header("🏆 Top 5 Puntuaciones (Modo Arcade)")
-        highscores = load_highscores_from_file()
+        
         if highscores:
             for i, score_entry in enumerate(highscores):
                 st.write(f"{i+1}. {score_entry['name']}: {score_entry['score']} puntos")
@@ -116,27 +118,6 @@ if html_content and css_content and js_content:
       <meta charset="UTF-8">
       <title>Pong Game</title>
       <style>
-        body {{ /* Ensure the embedded body doesn't inherit Streamlit's full body style */
-            background: #111;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            margin: 0; /* Remove default body margin */
-            padding: 0;
-        }}
-        #scoreboard {{ /* Ensure scoreboard is visible within embedded HTML */
-            font-size: 2em;
-            margin-bottom: 10px;
-            font-weight: bold;
-            text-align: center;
-        }}
-        canvas {{ /* Ensure canvas styling is maintained */
-            background: #222;
-            display: block;
-            margin: 0 auto;
-            border: 2px solid #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
-        }}
         {css_content_placeholder}
       </style>
     </head>
