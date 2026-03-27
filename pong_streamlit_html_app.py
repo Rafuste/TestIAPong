@@ -69,16 +69,16 @@ st.markdown(custom_css, unsafe_allow_html=True)
 
 highscores = load_highscores_from_file()
 
-html_content = load_file_content(HTML_FILE)
-css_content = load_file_content(CSS_FILE)
-js_content = load_file_content(JS_FILE)
+html_raw = load_file_content(HTML_FILE)
+css_raw = load_file_content(CSS_FILE)
+js_raw = load_file_content(JS_FILE)
 
 # Initialize session state for game key counter if not present
 if 'game_key_counter' not in st.session_state:
     st.session_state.game_key_counter = 0
 
 
-if html_content and css_content and js_content:
+if html_raw and css_raw and js_raw:
     # Game Control Panel (Sidebar) - Needs to be defined before components.html to get the mode
     with st.sidebar:
         st.header("Controles del Juego")
@@ -107,38 +107,19 @@ if html_content and css_content and js_content:
         st.info("Nota: Las puntuaciones altas que ves aquí son gestionadas por el servidor de Streamlit (vacías por defecto). El juego incrustado gestiona sus propias puntuaciones en el `localStorage` de tu navegador. Para ver tus puntuaciones del juego, deberás jugar y el juego te las mostrará al finalizar una partida Arcade.")
 
     # Modify js_content to inject the selected mode
-    # The JS game will call resetGame() internally. We just ensure the correct mode is set on initial load.
-    js_content_modified = js_content.replace("resetGame('quick_match');", f"resetGame('{js_game_mode}');")
+    js_content_modified = js_raw.replace("resetGame('quick_match');", f"resetGame('{js_game_mode}');")
 
-    # Integramos el CSS y JS directamente en el HTML para la incrustación
-    html_template = """
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <title>Pong Game</title>
-      <style>
-        {css_content_placeholder}
-      </style>
-    </head>
-    <body>
-      <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; height: 100%;">
-          <h1>Pong Game</h1>
-          <div id="scoreboard">
-            <span id="player-score">0</span> : <span id="ai-score">0</span>
-          </div>
-          <canvas id="gameCanvas" width="800" height="500"></canvas>
-      </div>
-      <script>
-        {js_content_modified_placeholder}
-      </script>
-    </body>
-    </html>
-    """
+    # Replace <link> and <script> tags in the raw HTML content
+    # First, replace the CSS link with inline style
+    full_html_game = html_raw.replace(
+        '<link rel="stylesheet" href="style.css">',
+        f'<style>{css_raw}</style>'
+    )
 
-    full_html_game = html_template.format(
-        css_content_placeholder=css_content,
-        js_content_modified_placeholder=js_content_modified
+    # Then, replace the JS script link with inline script
+    full_html_game = full_html_game.replace(
+        '<script src="pong.js"></script>',
+        f'<script>{js_content_modified}</script>'
     )
 
     st.set_page_config(layout="wide")
