@@ -1,0 +1,21 @@
+body {
+  text-align: center;
+  background: #111;
+  color: #fff;
+  font-family: Arial, sans-serif;
+}
+
+#scoreboard {
+  font-size: 2em;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+canvas {
+  background: #222;
+  display: block;
+  margin: 0 auto;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
