@@ -110,16 +110,15 @@ if html_raw and css_raw and js_raw:
     js_content_modified = js_raw.replace("resetGame('quick_match');", f"resetGame('{js_game_mode}');")
 
     # Replace <link> and <script> tags in the raw HTML content
-    # First, replace the CSS link with inline style
+    # Use str.format() to avoid issues with f-string parsing of curly braces in CSS/JS content
     full_html_game = html_raw.replace(
         '<link rel="stylesheet" href="style.css">',
-        f'<style>{css_raw}</style>'
+        '<style>{}</style>'.format(css_raw)
     )
 
-    # Then, replace the JS script link with inline script
     full_html_game = full_html_game.replace(
         '<script src="pong.js"></script>',
-        f'<script>{js_content_modified}</script>'
+        '<script>{}</script>'.format(js_content_modified)
     )
 
     st.set_page_config(layout="wide")
