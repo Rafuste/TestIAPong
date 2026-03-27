@@ -89,7 +89,7 @@ if html_content and css_content and js_content:
         # Map Streamlit radio selection to JS game mode string
         js_game_mode = "quick_match" if game_mode_selection_py == "Partido Rápido" else "arcade"
 
-        if st.button("Iniciar / Reiniciar Juego"): 
+        if st.button("Iniciar / Reiniciar Juego"):
             # Increment the counter to force re-render of the components.html with a new key
             st.session_state.game_key_counter += 1
             # No st.experimental_rerun() needed here, changing the key will cause a redraw
@@ -109,7 +109,7 @@ if html_content and css_content and js_content:
     js_content_modified = js_content.replace("resetGame('quick_match');", f"resetGame('{js_game_mode}');")
 
     # Integramos el CSS y JS directamente en el HTML para la incrustación
-    full_html_game = f"""
+    html_template = """
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -117,7 +117,7 @@ if html_content and css_content and js_content:
       <title>Pong Game</title>
       <style>
         body {{ /* Ensure the embedded body doesn't inherit Streamlit's full body style */
-            background: #111; 
+            background: #111;
             color: #fff;
             font-family: Arial, sans-serif;
             margin: 0; /* Remove default body margin */
@@ -137,7 +137,7 @@ if html_content and css_content and js_content:
             border-radius: 8px;
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
         }}
-        {css_content}
+        {css_content_placeholder}
       </style>
     </head>
     <body>
@@ -149,11 +149,16 @@ if html_content and css_content and js_content:
           <canvas id="gameCanvas" width="800" height="500"></canvas>
       </div>
       <script>
-        {js_content_modified}  # Use the modified content here
+        {js_content_modified_placeholder}
       </script>
     </body>
     </html>
     """
+
+    full_html_game = html_template.format(
+        css_content_placeholder=css_content,
+        js_content_modified_placeholder=js_content_modified
+    )
 
     st.set_page_config(layout="wide")
     st.title("PONG XTREME!!!!")
@@ -164,7 +169,8 @@ if html_content and css_content and js_content:
     # Incrustamos el juego HTML/JS con altura ajustada, using a dynamic key
     components.html(full_html_game, height=650, width=850, scrolling=False, key=f"pong_game_{st.session_state.game_key_counter}")
 
-    st.markdown("--- desarrollado con Streamlit y el juego Pong original en HTML/CSS/JS ---")
+    st.markdown("---", unsafe_allow_html=True)
+    st.markdown("Desarrollado con Streamlit y el juego Pong original en HTML/CSS/JS")
 else:
     st.error("¡Error! No se pudieron cargar uno o más archivos del juego (index.html, style.css, pong.js). Asegúrate de que estén en el mismo directorio.")
 
