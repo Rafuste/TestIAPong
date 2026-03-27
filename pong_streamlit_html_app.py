@@ -71,6 +71,11 @@ html_content = load_file_content(HTML_FILE)
 css_content = load_file_content(CSS_FILE)
 js_content = load_file_content(JS_FILE)
 
+# Initialize session state for game key counter if not present
+if 'game_key_counter' not in st.session_state:
+    st.session_state.game_key_counter = 0
+
+
 if html_content and css_content and js_content:
     # Game Control Panel (Sidebar) - Needs to be defined before components.html to get the mode
     with st.sidebar:
@@ -85,8 +90,9 @@ if html_content and css_content and js_content:
         js_game_mode = "quick_match" if game_mode_selection_py == "Partido Rápido" else "arcade"
 
         if st.button("Iniciar / Reiniciar Juego"): 
-            # This will trigger a rerun, and the game will be re-embedded with the new js_game_mode
-            st.experimental_rerun()
+            # Increment the counter to force re-render of the components.html with a new key
+            st.session_state.game_key_counter += 1
+            # No st.experimental_rerun() needed here, changing the key will cause a redraw
 
         st.markdown("---")
         st.header("🏆 Top 5 Puntuaciones (Modo Arcade)")
@@ -99,6 +105,7 @@ if html_content and css_content and js_content:
         st.info("Nota: Las puntuaciones altas que ves aquí son gestionadas por el servidor de Streamlit (vacías por defecto). El juego incrustado gestiona sus propias puntuaciones en el `localStorage` de tu navegador. Para ver tus puntuaciones del juego, deberás jugar y el juego te las mostrará al finalizar una partida Arcade.")
 
     # Modify js_content to inject the selected mode
+    # The JS game will call resetGame() internally. We just ensure the correct mode is set on initial load.
     js_content_modified = js_content.replace("resetGame('quick_match');", f"resetGame('{js_game_mode}');")
 
     # Integramos el CSS y JS directamente en el HTML para la incrustación
@@ -154,8 +161,8 @@ if html_content and css_content and js_content:
     st.markdown("### ¡Juega al Pong clásico aquí!", unsafe_allow_html=True)
     st.info("Para jugar, haz clic en el área del juego. El paddle izquierdo se controla con el ratón o con las teclas de flecha (arriba/abajo).")
 
-    # Incrustamos el juego HTML/JS con altura ajustada
-    components.html(full_html_game, height=650, width=850, scrolling=False)
+    # Incrustamos el juego HTML/JS con altura ajustada, using a dynamic key
+    components.html(full_html_game, height=650, width=850, scrolling=False, key=f"pong_game_{st.session_state.game_key_counter}")
 
     st.markdown("--- desarrollado con Streamlit y el juego Pong original en HTML/CSS/JS ---")
 else:
